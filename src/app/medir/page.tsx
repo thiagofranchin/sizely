@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useSyncExternalStore } from "react";
+import { useSyncExternalStore, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { GarmentTypeSelector } from "@/components/garment/garment-type-selector";
@@ -22,7 +22,7 @@ import {
   convertPixelsToCentimeters,
   pointsAreValid,
 } from "@/lib/measurement/math";
-import { clearDraft, readDraft, subscribeDraft } from "@/lib/storage/draft";
+import { clearDraft, readDraft } from "@/lib/storage/draft";
 import { appendHistoryItem } from "@/lib/storage/history";
 import { createId } from "@/lib/utils/id";
 import type {
@@ -34,6 +34,7 @@ import type {
 } from "@/lib/types/measurement";
 
 const steps = ["Tipo da peça", "Referência", "Medidas", "Resultado"];
+const emptySubscribe = () => () => undefined;
 
 function parseCentimeterInput(value: string) {
   const normalized = Number(value.replace(",", "."));
@@ -65,11 +66,12 @@ function recalculateMeasurement(
 
 export default function MeasurePage() {
   const router = useRouter();
-  const draft = useSyncExternalStore(
-    subscribeDraft,
-    readDraft,
-    () => null,
+  const isHydrated = useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false,
   );
+  const draft = isHydrated ? readDraft() : null;
   const [garmentTypeId, setGarmentTypeId] = useState<GarmentTypeId | null>(null);
   const [referencePoints, setReferencePoints] = useState<LinePoints>([null, null]);
   const [referenceInput, setReferenceInput] = useState("");

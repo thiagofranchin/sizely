@@ -2,6 +2,7 @@ import { HISTORY_STORAGE_KEY } from "@/lib/constants/storage";
 import type { HistoryItem } from "@/lib/types/measurement";
 
 const HISTORY_EVENT = "sizely-history-updated";
+const EMPTY_HISTORY: HistoryItem[] = [];
 
 let cachedHistoryRaw: string | null = null;
 let cachedHistorySnapshot: HistoryItem[] = [];
@@ -27,8 +28,8 @@ export function readHistory() {
 
   if (!rawValue) {
     cachedHistoryRaw = null;
-    cachedHistorySnapshot = [];
-    return [] as HistoryItem[];
+    cachedHistorySnapshot = EMPTY_HISTORY;
+    return EMPTY_HISTORY;
   }
 
   if (rawValue === cachedHistoryRaw) {
@@ -43,8 +44,8 @@ export function readHistory() {
     return nextItems;
   } catch {
     cachedHistoryRaw = null;
-    cachedHistorySnapshot = [];
-    return [];
+    cachedHistorySnapshot = EMPTY_HISTORY;
+    return EMPTY_HISTORY;
   }
 }
 
