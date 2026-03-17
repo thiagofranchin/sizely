@@ -1,3 +1,5 @@
+import { Bookmark, RotateCcw } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { formatCentimeters, formatDateTime } from "@/lib/measurement/format";
 import type { MeasurementResult } from "@/lib/types/measurement";
 import { CopyResultsButton } from "@/components/measurement/copy-results-button";
@@ -16,13 +18,13 @@ export function ResultsCard({
   onNewMeasurement,
 }: ResultsCardProps) {
   return (
-    <section className="rounded-[28px] border border-[var(--border-soft)] bg-[var(--surface)] p-5 shadow-[var(--shadow-card)]">
+    <section className="luxury-panel p-6 sm:p-7">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--text-muted)]">
             Resultado
           </p>
-          <h2 className="mt-2 font-[var(--font-space-grotesk)] text-2xl font-medium text-[var(--text-strong)]">
+          <h2 className="mt-3 text-3xl text-[var(--text-strong)] luxury-title">
             {result.title}
           </h2>
           <p className="mt-2 text-sm leading-6 text-[var(--text-soft)]">
@@ -32,27 +34,30 @@ export function ResultsCard({
         </div>
         <div className="grid gap-3 sm:min-w-52">
           <CopyResultsButton result={result} />
-          <button
+          <Button
             type="button"
             onClick={onSave}
             disabled={isSaved}
-            className="flex min-h-11 items-center justify-center rounded-2xl bg-[var(--brand)] px-4 text-sm font-semibold text-[var(--brand-ink)] transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+            className="h-11 rounded-full px-4 text-sm"
           >
+            <Bookmark className="size-4" />
             {isSaved ? "Salvo no histórico" : "Salvar localmente"}
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
+            variant="outline"
             onClick={onNewMeasurement}
-            className="flex min-h-11 items-center justify-center rounded-2xl border border-[var(--border-strong)] px-4 text-sm font-medium text-[var(--text-strong)] transition hover:bg-[var(--surface-alt)]"
+            className="h-11 rounded-full bg-white/80 px-4 text-sm dark:bg-card/80"
           >
+            <RotateCcw className="size-4" />
             Iniciar nova medição
-          </button>
+          </Button>
         </div>
       </div>
 
-      <div className="mt-6 overflow-hidden rounded-[24px] border border-[var(--border-soft)]">
+      <div className="mt-6 overflow-hidden rounded-[1.75rem] border border-[var(--border-soft)] bg-white/70 dark:bg-card/80">
         <table className="min-w-full border-collapse text-sm">
-          <thead className="bg-[var(--surface-alt)] text-left text-[var(--text-soft)]">
+          <thead className="bg-[color:var(--surface-alt)] text-left text-[var(--text-soft)]">
             <tr>
               <th className="px-4 py-3 font-medium">Medida</th>
               <th className="px-4 py-3 font-medium">Valor</th>

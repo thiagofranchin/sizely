@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Download } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 type BeforeInstallPromptEvent = Event & {
   prompt: () => Promise<void>;
@@ -36,11 +38,7 @@ export function InstallPromptButton() {
   }, []);
 
   if (isInstalled) {
-    return (
-      <span className="inline-flex min-h-11 items-center justify-center rounded-full border border-[var(--border-strong)] px-4 text-sm font-medium text-[var(--text-soft)]">
-        App instalado
-      </span>
-    );
+    return null;
   }
 
   if (!installEvent) {
@@ -48,16 +46,18 @@ export function InstallPromptButton() {
   }
 
   return (
-    <button
+    <Button
       type="button"
+      variant="outline"
       onClick={async () => {
         await installEvent.prompt();
         await installEvent.userChoice;
         setInstallEvent(null);
       }}
-      className="inline-flex min-h-11 items-center justify-center rounded-full border border-[var(--border-strong)] px-4 text-sm font-medium text-[var(--text-strong)] transition hover:bg-[var(--surface-alt)]"
+      className="h-10 rounded-full bg-white/70 px-3 dark:bg-card/80 sm:h-11 sm:px-4"
     >
+      <Download className="size-4" />
       Instalar app
-    </button>
+    </Button>
   );
 }

@@ -1,8 +1,10 @@
- "use client";
+"use client";
 
 import { useEffect, useRef, useState } from "react";
+import { Crosshair, RefreshCcw, Ruler } from "lucide-react";
 import { MeasurementCanvas, type MeasurementCanvasLine } from "@/components/measurement/measurement-canvas";
 import { InstructionBox } from "@/components/ui/instruction-box";
+import { Button } from "@/components/ui/button";
 import { formatCentimeters } from "@/lib/measurement/format";
 import { calculateDistanceInPixels, pointsAreValid } from "@/lib/measurement/math";
 import type { LinePoints } from "@/lib/types/measurement";
@@ -70,8 +72,8 @@ export function ReferenceStep({
   return (
     <div className="grid gap-5">
       <InstructionBox
-        title="Calibração manual"
-        description="Marque dois pontos no objeto de referência, informe a medida real em centímetros e ajuste os pontos se necessário antes de continuar."
+        title="Calibração"
+        description="Use um objeto real visível na foto, marque as duas extremidades e informe o valor em centímetros para definir a escala."
       />
 
       <MeasurementCanvas
@@ -83,9 +85,10 @@ export function ReferenceStep({
         onUpdatePoint={onUpdatePoint}
       />
 
-      <div className="grid gap-4 rounded-[28px] border border-[var(--border-soft)] bg-[var(--surface)] p-5 shadow-[var(--shadow-card)]">
+      <div className="luxury-panel grid gap-4 p-5 sm:p-6">
         <label className="grid gap-2">
-          <span className="text-sm font-medium text-[var(--text-strong)]">
+          <span className="inline-flex items-center gap-2 text-sm font-medium text-[var(--text-strong)]">
+            <Ruler className="size-4 text-primary" />
             Medida real do objeto de referência
           </span>
           <input
@@ -97,36 +100,57 @@ export function ReferenceStep({
             value={referenceSizeCm}
             onChange={(event) => onReferenceSizeChange(event.target.value)}
             placeholder="Ex.: 8,5"
-            className={`min-h-12 rounded-2xl border bg-white px-4 text-base text-slate-900 outline-none transition focus:border-[var(--brand)] ${
+            className={`min-h-12 rounded-[1.3rem] border bg-white/90 px-4 text-base text-slate-900 outline-none transition focus:border-primary dark:bg-card/90 dark:text-foreground ${
               shouldPulse
-                ? "border-[var(--brand)] shadow-[0_0_0_4px_rgba(191,216,191,0.55)]"
+                ? "border-primary shadow-[0_0_0_5px_rgba(233,194,148,0.4)]"
                 : "border-[var(--border-soft)]"
             }`}
           />
         </label>
 
-        <div className="grid gap-2 text-sm text-[var(--text-soft)]">
-          <p>
+        <div className="grid gap-3 md:grid-cols-3">
+          <div className="rounded-[1.35rem] border border-[var(--border-soft)] bg-[color:var(--surface-alt)] px-4 py-3">
+            <p className="text-[0.68rem] font-semibold uppercase tracking-[0.2em] text-[var(--text-muted)]">
+              Distância
+            </p>
+            <p className="mt-1 text-sm text-[var(--text-strong)]">
             Distância na imagem:{" "}
             {referenceDistance ? `${referenceDistance.toFixed(1).replace(".", ",")} px` : "Aguardando marcação"}
-          </p>
-          <p>
-            Escala calculada:{" "}
+            </p>
+          </div>
+          <div className="rounded-[1.35rem] border border-[var(--border-soft)] bg-[color:var(--surface-alt)] px-4 py-3">
+            <p className="text-[0.68rem] font-semibold uppercase tracking-[0.2em] text-[var(--text-muted)]">
+              Escala
+            </p>
+            <p className="mt-1 text-sm text-[var(--text-strong)]">
             {scaleCmPerPixel ? `${scaleCmPerPixel.toFixed(4).replace(".", ",")} cm/px` : "Aguardando dados válidos"}
-          </p>
-          <p>
-            Referência informada:{" "}
+            </p>
+          </div>
+          <div className="rounded-[1.35rem] border border-[var(--border-soft)] bg-[color:var(--surface-alt)] px-4 py-3">
+            <p className="text-[0.68rem] font-semibold uppercase tracking-[0.2em] text-[var(--text-muted)]">
+              Referência
+            </p>
+            <p className="mt-1 text-sm text-[var(--text-strong)]">
             {referenceSizeCm ? formatCentimeters(Number(referenceSizeCm.replace(",", "."))) : "Aguardando valor"}
-          </p>
+            </p>
+          </div>
         </div>
 
-        <button
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="inline-flex items-center gap-2 text-sm text-[var(--text-soft)]">
+            <Crosshair className="size-4 text-primary" />
+            Ajuste os pontos se precisar refinar a referência.
+          </div>
+          <Button
           type="button"
+          variant="outline"
           onClick={onReset}
-          className="flex min-h-11 items-center justify-center rounded-2xl border border-[var(--border-strong)] px-4 text-sm font-medium text-[var(--text-strong)] transition hover:bg-[var(--surface-alt)]"
+          className="h-11 rounded-full bg-white/80 px-4 text-sm dark:bg-card/80"
         >
+          <RefreshCcw className="size-4" />
           Redefinir referência
-        </button>
+          </Button>
+        </div>
       </div>
     </div>
   );

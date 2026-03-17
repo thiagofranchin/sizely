@@ -1,5 +1,9 @@
 import Link from "next/link";
+import { ArrowLeft, Sparkles } from "lucide-react";
 import type { ReactNode } from "react";
+import { buttonVariants } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { cn } from "@/lib/utils";
 
 type HeaderProps = {
   title: string;
@@ -15,29 +19,38 @@ export function Header({
   rightSlot,
 }: HeaderProps) {
   return (
-    <header className="space-y-2">
+    <header className="space-y-3">
       <div className="flex items-start justify-between gap-3">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--text-muted)]">
+        <div className="min-w-0">
+          <div className="inline-flex items-center gap-2 rounded-full border border-[var(--border-soft)] bg-white/70 px-3 py-1 text-[0.68rem] font-semibold uppercase tracking-[0.24em] text-[var(--text-muted)] dark:bg-card/80">
+            <Sparkles className="size-3.5 text-primary" />
             Sizely
-          </p>
-          <h1 className="hidden font-[var(--font-space-grotesk)] text-xl font-semibold tracking-tight text-[var(--text-strong)] sm:block sm:text-2xl">
+          </div>
+          <h1 className="mt-3 hidden text-xl text-[var(--text-strong)] sm:block sm:text-[2rem] luxury-title">
             {title}
           </h1>
           {description ? (
-            <p className="mt-1 hidden max-w-2xl text-sm leading-6 text-[var(--text-soft)] sm:block">
+            <p className="mt-2 hidden max-w-2xl text-sm leading-6 text-[var(--text-soft)] sm:block">
               {description}
             </p>
           ) : null}
+          <p className="mt-1 text-sm font-medium text-[var(--text-strong)] sm:hidden">
+            {title}
+          </p>
         </div>
         <div className="flex items-center gap-2">
+          <ThemeToggle />
           {rightSlot}
           {showBackLink ? (
             <Link
               href="/"
-              className="inline-flex min-h-10 items-center rounded-full border border-[var(--border-strong)] px-3 text-sm font-medium text-[var(--text-strong)] transition hover:bg-[var(--surface-alt)] sm:min-h-11 sm:px-4"
+              className={cn(
+                buttonVariants({ variant: "outline", size: "sm" }),
+                "rounded-full bg-white/70 px-3 dark:bg-card/80",
+              )}
             >
-              Início
+              <ArrowLeft className="size-4" />
+              <span className="hidden sm:inline">Início</span>
             </Link>
           ) : null}
         </div>

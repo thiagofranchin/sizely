@@ -3,12 +3,15 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { Archive, Camera, ChevronRight, ImagePlus, Shirt, Sparkles } from "lucide-react";
 import { ActionCard } from "@/components/ui/action-card";
 import { Header } from "@/components/ui/header";
 import { InstructionBox } from "@/components/ui/instruction-box";
+import { buttonVariants } from "@/components/ui/button";
 import { CameraCaptureInput } from "@/components/measurement/camera-capture-input";
 import { ImageUploader } from "@/components/measurement/image-uploader";
 import { InstallPromptButton } from "@/components/pwa/install-prompt-button";
+import { cn } from "@/lib/utils";
 import { saveDraft } from "@/lib/storage/draft";
 import type { SourceKind } from "@/lib/types/measurement";
 
@@ -55,11 +58,11 @@ export default function Home() {
   }
 
   return (
-    <main className="mx-auto flex min-h-screen w-full max-w-6xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
-      <section className="rounded-[32px] border border-[var(--border-soft)] bg-[var(--surface)] px-5 py-5 shadow-[var(--shadow-card)] sm:px-7">
+    <main className="luxury-shell">
+      <section className="luxury-panel px-5 py-5 sm:px-7">
         <Header
-          title="Medidor por referência"
-          description="Carregue uma imagem, calibre a escala com qualquer objeto conhecido e marque quantas medidas quiser no próprio navegador."
+          title="Medidor de peças por referência"
+          description="Uma ferramenta de bancada digital para medir roupas e objetos com rigor visual, sem backend e direto no navegador."
           rightSlot={<InstallPromptButton />}
         />
       </section>
@@ -68,11 +71,55 @@ export default function Home() {
         <InstructionBox title="Não foi possível iniciar" description={errorMessage} tone="warning" />
       ) : null}
 
-      <section className="grid gap-4 lg:grid-cols-[1.3fr_0.7fr]">
+      <section className="luxury-panel relative overflow-hidden px-5 py-8 sm:px-8 sm:py-10">
+        <div className="absolute inset-y-0 right-0 hidden w-1/2 bg-[radial-gradient(circle_at_top_right,_rgba(183,101,77,0.16),_transparent_58%)] lg:block" />
+        <div className="relative">
+          <div className="space-y-5">
+            <div className="inline-flex items-center gap-2 rounded-full border border-[var(--border-soft)] bg-white/75 px-3 py-1 text-[0.7rem] font-semibold uppercase tracking-[0.22em] text-[var(--text-muted)] dark:bg-card/80">
+              <Sparkles className="size-3.5 text-primary" />
+              Precisão editorial
+            </div>
+            <div className="space-y-4">
+              <h2 className="max-w-3xl text-4xl leading-tight text-[var(--text-strong)] sm:text-5xl luxury-title">
+                Transforme qualquer foto plana em uma ficha de medidas clara e elegante.
+              </h2>
+              <p className="max-w-2xl text-sm leading-7 text-[var(--text-soft)] sm:text-base">
+                Calibre uma referência real na imagem, adicione quantas medidas quiser e copie os
+                resultados em texto limpo para produção, catálogo ou conferência.
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-3">
+              <Link
+                href="/medir"
+                className={cn(
+                  buttonVariants({ variant: "default" }),
+                  "h-12 rounded-full px-5 text-sm shadow-sm",
+                )}
+              >
+                Abrir medidor
+                <ChevronRight className="size-4" />
+              </Link>
+              <Link
+                href="/historico"
+                className={cn(
+                  buttonVariants({ variant: "outline" }),
+                  "h-12 rounded-full bg-white/75 px-5 text-sm dark:bg-card/80",
+                )}
+              >
+                <Archive className="size-4" />
+                Ver histórico
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="grid gap-4 lg:grid-cols-[1.15fr_0.85fr]">
         <ActionCard
-          icon="📷"
+          eyebrow="Captura"
+          icon={<Camera className="size-6" />}
           title="Nova medição"
-          description=""
+          description="Escolha entre câmera e galeria. O Sizely abre a imagem em uma prancheta de medição com referência manual e pontos editáveis."
           action={
             <div className="grid gap-3 sm:grid-cols-2">
               <CameraCaptureInput
@@ -86,18 +133,54 @@ export default function Home() {
         />
 
         <ActionCard
-          icon="🗂️"
+          eyebrow="Arquivo"
+          icon={<Archive className="size-6" />}
           title="Histórico local"
-          description="Revise medições salvas, copie novamente os resultados e mantenha um histórico leve no próprio dispositivo."
+          description="Mantenha uma coleção privada das últimas medições, pronta para revisão e cópia rápida no mesmo dispositivo."
           action={
             <Link
               href="/historico"
-              className="flex min-h-12 items-center justify-center rounded-2xl border border-[var(--border-strong)] px-4 text-sm font-medium text-[var(--text-strong)] transition hover:bg-[var(--surface-alt)]"
+              className={cn(
+                buttonVariants({ variant: "outline" }),
+                "h-12 rounded-full bg-white/75 px-5 text-sm dark:bg-card/80",
+              )}
             >
               Abrir histórico
+              <ChevronRight className="size-4" />
             </Link>
           }
         />
+      </section>
+
+      <section className="grid gap-4 lg:grid-cols-3">
+        {[
+          {
+            icon: <ImagePlus className="size-5 text-primary" />,
+            title: "Imagem limpa",
+            description:
+              "Melhor resultado com foto frontal, roupa plana e objeto de referência no mesmo plano visual.",
+          },
+          {
+            icon: <Shirt className="size-5 text-primary" />,
+            title: "Visual de atelier",
+            description:
+              "Interface pensada para uso prático no celular, mas com apresentação refinada para rotina de produto e catálogo.",
+          },
+          {
+            icon: <Sparkles className="size-5 text-primary" />,
+            title: "Saída pronta",
+            description:
+              "Resultados em centímetros, texto fácil de copiar e histórico leve salvo localmente no dispositivo.",
+          },
+        ].map((item) => (
+          <div key={item.title} className="luxury-panel p-5 sm:p-6">
+            <div className="flex h-11 w-11 items-center justify-center rounded-[1.2rem] border border-[var(--border-soft)] bg-white/75 dark:bg-card/80">
+              {item.icon}
+            </div>
+            <h3 className="mt-4 text-2xl text-[var(--text-strong)] luxury-title">{item.title}</h3>
+            <p className="mt-3 text-sm leading-6 text-[var(--text-soft)]">{item.description}</p>
+          </div>
+        ))}
       </section>
 
       {isLoading ? (

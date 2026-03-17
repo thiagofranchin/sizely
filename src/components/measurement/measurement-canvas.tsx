@@ -478,9 +478,9 @@ export function MeasurementCanvas({
           <button
             type="button"
             onClick={() => setToolMode("mark")}
-            className={`min-h-10 rounded-xl px-4 text-sm font-medium transition ${
+            className={`min-h-10 rounded-xl px-4 text-sm font-medium transition-all duration-300 ease-out ${
               toolMode === "mark"
-                ? "bg-[var(--text-strong)] text-[var(--bg)]"
+                ? "bg-[var(--text-strong)] text-[var(--surface-strong)] shadow-sm dark:bg-primary dark:text-primary-foreground"
                 : "text-[var(--text-soft)]"
             }`}
           >
@@ -489,9 +489,9 @@ export function MeasurementCanvas({
           <button
             type="button"
             onClick={() => setToolMode("move")}
-            className={`min-h-10 rounded-xl px-4 text-sm font-medium transition ${
+            className={`min-h-10 rounded-xl px-4 text-sm font-medium transition-all duration-300 ease-out ${
               toolMode === "move"
-                ? "bg-[var(--text-strong)] text-[var(--bg)]"
+                ? "bg-[var(--text-strong)] text-[var(--surface-strong)] shadow-sm dark:bg-primary dark:text-primary-foreground"
                 : "text-[var(--text-soft)]"
             }`}
           >

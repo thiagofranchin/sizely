@@ -1,9 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" fill="none">
-  <rect width="512" height="512" rx="132" fill="#EEF1EA"/>
-  <rect x="74" y="74" width="364" height="364" rx="104" fill="white"/>
-  <path d="M176 154H336V198L301 225V352H211V225L176 198V154Z" fill="#1F2A24"/>
-  <path d="M211 225L176 198H336L301 225" stroke="#BFD8BF" stroke-width="28" stroke-linejoin="round"/>
-  <circle cx="256" cy="280" r="48" fill="#BFD8BF"/>
-  <path d="M256 240V321" stroke="#193222" stroke-width="24" stroke-linecap="round"/>
-  <path d="M215 280H297" stroke="#193222" stroke-width="24" stroke-linecap="round"/>
+  <rect width="512" height="512" rx="138" fill="#f7f1ea"/>
+  <rect x="44" y="44" width="424" height="424" rx="112" fill="#fffaf6" stroke="#eadbce" stroke-width="10"/>
+  <path d="M166 118h180l30 61 57 29-33 74-48-24v137c0 16-11 27-27 27H187c-16 0-27-11-27-27V258l-48 24-33-74 57-29 30-61Z" fill="#8f3f2f"/>
+  <path d="M206 118c7 28 27 43 50 43s43-15 50-43" fill="none" stroke="#f7d9bd" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M166 118h180l30 61 57 29-33 74-48-24v137c0 16-11 27-27 27H187c-16 0-27-11-27-27V258l-48 24-33-74 57-29 30-61Z" fill="none" stroke="#52231a" stroke-width="16" stroke-linejoin="round"/>
 </svg>

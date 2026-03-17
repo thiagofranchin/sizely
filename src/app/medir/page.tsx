@@ -3,12 +3,15 @@
 import { useSyncExternalStore, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { ChevronRight, Plus, Ruler, ScissorsLineDashed, Trash2 } from "lucide-react";
 import { ReferenceStep } from "@/components/measurement/reference-step";
 import { ResultsCard } from "@/components/measurement/results-card";
 import { MeasurementCanvas, type MeasurementCanvasLine } from "@/components/measurement/measurement-canvas";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Header } from "@/components/ui/header";
 import { Stepper } from "@/components/ui/stepper";
+import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { formatCentimeters } from "@/lib/measurement/format";
 import {
   calculateDistanceInPixels,
@@ -19,6 +22,7 @@ import {
 import { clearDraft, readDraft } from "@/lib/storage/draft";
 import { appendHistoryItem } from "@/lib/storage/history";
 import { createId } from "@/lib/utils/id";
+import { cn } from "@/lib/utils";
 import type { LinePoints, MeasurementEntry, MeasurementResult, Point } from "@/lib/types/measurement";
 
 const steps = ["Referência", "Medidas", "Resultado"];
@@ -273,8 +277,8 @@ export default function MeasurePage() {
 
   if (!draft) {
     return (
-      <main className="mx-auto flex min-h-screen w-full max-w-4xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
-        <section className="rounded-[32px] border border-[var(--border-soft)] bg-[var(--surface)] px-5 py-5 shadow-[var(--shadow-card)] sm:px-7">
+      <main className="luxury-shell max-w-5xl">
+        <section className="luxury-panel px-5 py-5 sm:px-7">
           <Header
             title="Medição"
             description="Comece pela tela inicial para tirar uma foto ou selecionar um arquivo antes de medir."
@@ -290,8 +294,8 @@ export default function MeasurePage() {
   }
 
   return (
-    <main className="mx-auto flex min-h-screen w-full max-w-6xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
-      <section className="rounded-[32px] border border-[var(--border-soft)] bg-[var(--surface)] px-5 py-5 shadow-[var(--shadow-card)] sm:px-7">
+    <main className="luxury-shell">
+      <section className="luxury-panel px-5 py-5 sm:px-7">
         <Header
           title="Medidor livre"
           description={`Imagem atual: ${draft.sourceName}. Calibre a referência, adicione quantas medidas quiser e ajuste os pontos diretamente na imagem.`}
@@ -316,14 +320,16 @@ export default function MeasurePage() {
               setReferenceInput("");
             }}
           />
-          <button
+          <Button
             type="button"
             onClick={() => setCurrentStep(1)}
             disabled={!canAdvanceFromReference}
-            className="min-h-12 rounded-2xl bg-[var(--brand)] px-4 text-sm font-semibold text-[var(--brand-ink)] transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+            className="h-12 rounded-full px-5 text-sm shadow-sm"
           >
+            <Ruler className="size-4" />
             Ir para medições
-          </button>
+            <ChevronRight className="size-4" />
+          </Button>
         </section>
       ) : null}
 
@@ -339,24 +345,25 @@ export default function MeasurePage() {
               onUpdatePoint={handleCanvasUpdatePoint}
             />
 
-            <section className="grid gap-4 rounded-[28px] border border-[var(--border-soft)] bg-[var(--surface)] p-5 shadow-[var(--shadow-card)]">
+            <section className="luxury-panel grid gap-4 p-5 sm:p-6">
               <div className="flex items-center justify-between gap-3">
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--text-muted)]">
                     Medidas
                   </p>
-                  <h2 className="mt-1 font-[var(--font-space-grotesk)] text-xl font-medium text-[var(--text-strong)]">
+                  <h2 className="mt-2 text-3xl text-[var(--text-strong)] luxury-title">
                     Adicione e ajuste livremente
                   </h2>
                 </div>
-                <button
+                <Button
                   type="button"
                   onClick={handleAddMeasurement}
-                  className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[var(--brand)] text-[1.9rem] leading-none text-[var(--brand-ink)] transition hover:opacity-90"
+                  size="icon-lg"
+                  className="rounded-full shadow-sm"
                   aria-label="Adicionar medida"
                 >
-                  +
-                </button>
+                  <Plus className="size-6" />
+                </Button>
               </div>
 
               <div className="grid gap-3 md:grid-cols-2">
@@ -369,8 +376,8 @@ export default function MeasurePage() {
                       key={measurement.id}
                       className={`rounded-[24px] border p-4 transition ${
                         isActive
-                          ? "border-[var(--brand)] bg-[var(--brand-soft)]"
-                          : "border-[var(--border-soft)] bg-[var(--surface-alt)]"
+                          ? "border-primary/35 bg-[color:var(--brand-soft)] shadow-sm"
+                          : "border-[var(--border-soft)] bg-white/70 dark:bg-card/80"
                       }`}
                     >
                       <button
@@ -386,7 +393,7 @@ export default function MeasurePage() {
                             {isActive ? "Medida ativa" : `Medida ${index + 1}`}
                           </span>
                         </div>
-                        <span className="shrink-0 text-sm font-semibold text-[var(--text-soft)] sm:text-[0.95rem]">
+                        <span className="shrink-0 rounded-full bg-white/80 px-3 py-1 text-sm font-semibold text-[var(--text-soft)] dark:bg-card/80 sm:text-[0.95rem]">
                           {measurement.valueCm !== null
                             ? formatCentimeters(measurement.valueCm)
                             : "Pendente"}
@@ -404,29 +411,33 @@ export default function MeasurePage() {
                             handleUpdateMeasurementLabel(measurement.id, event.target.value)
                           }
                           onFocus={() => setActiveMeasurementId(measurement.id)}
-                          className="min-h-11 rounded-2xl border border-[var(--border-soft)] bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-[var(--brand)]"
+                          className="min-h-11 rounded-[1.1rem] border border-[var(--border-soft)] bg-white/90 px-4 text-sm text-slate-900 outline-none transition focus:border-primary dark:bg-card/90 dark:text-foreground"
                           placeholder={`Ex.: Medida ${index + 1}`}
                         />
                       </label>
 
                       <div className="mt-3 grid grid-cols-2 gap-2">
-                        <button
+                        <Button
                           type="button"
+                          variant="outline"
                           onClick={() => {
                             setActiveMeasurementId(measurement.id);
                             handleResetMeasurement(measurement.id);
                           }}
-                          className="min-h-10 rounded-2xl border border-[var(--border-strong)] px-3 text-sm font-medium text-[var(--text-strong)] transition hover:bg-white"
+                          className="h-10 rounded-full bg-white/80 px-3 text-sm dark:bg-card/80"
                         >
+                          <ScissorsLineDashed className="size-4" />
                           Medir
-                        </button>
-                        <button
+                        </Button>
+                        <Button
                           type="button"
+                          variant="outline"
                           onClick={() => handleRemoveMeasurement(measurement.id)}
-                          className="min-h-10 rounded-2xl border border-red-200 px-3 text-sm font-medium text-red-700 transition hover:bg-red-50"
+                          className="h-10 rounded-full border-red-200 bg-white/80 px-3 text-sm text-red-700 hover:bg-red-50 dark:border-red-900 dark:bg-red-950/40 dark:text-red-200 dark:hover:bg-red-950/60"
                         >
+                          <Trash2 className="size-4" />
                           Excluir
-                        </button>
+                        </Button>
                       </div>
                     </div>
                   );
@@ -436,24 +447,26 @@ export default function MeasurePage() {
           </div>
 
           <div className="grid gap-3 sm:grid-cols-2">
-            <button
+            <Button
               type="button"
+              variant="outline"
               onClick={() => setCurrentStep(0)}
-              className="min-h-12 rounded-2xl border border-[var(--border-strong)] px-4 text-sm font-medium text-[var(--text-strong)] transition hover:bg-[var(--surface-alt)]"
+              className="h-12 rounded-full bg-white/80 px-5 text-sm dark:bg-card/80"
             >
               Ajustar referência
-            </button>
-            <button
+            </Button>
+            <Button
               type="button"
               onClick={handleBuildResult}
               disabled={!displayedMeasurements.some((measurement) => measurement.valueCm !== null)}
-              className="min-h-12 rounded-2xl bg-[var(--brand)] px-4 text-sm font-semibold text-[var(--brand-ink)] transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+              className="h-12 rounded-full px-5 text-sm shadow-sm"
             >
               Ver resultados
-            </button>
+              <ChevronRight className="size-4" />
+            </Button>
           </div>
 
-          <footer className="rounded-[24px] border border-[var(--border-soft)] bg-[var(--surface)] px-4 py-4 text-sm leading-6 text-[var(--text-soft)] shadow-[var(--shadow-card)]">
+          <footer className="luxury-panel px-4 py-4 text-sm leading-6 text-[var(--text-soft)]">
             Toque com a medida ativa selecionada para marcar dois pontos. Arraste um ponto já criado para corrigir. Use o botão <span className="font-semibold text-[var(--text-strong)]">+</span> para adicionar novas medidas.
           </footer>
         </section>
@@ -468,16 +481,20 @@ export default function MeasurePage() {
             onNewMeasurement={startNewMeasurement}
           />
           <div className="grid gap-3 sm:grid-cols-2">
-            <button
+            <Button
               type="button"
+              variant="outline"
               onClick={() => setCurrentStep(1)}
-              className="min-h-12 rounded-2xl border border-[var(--border-strong)] px-4 text-sm font-medium text-[var(--text-strong)] transition hover:bg-[var(--surface-alt)]"
+              className="h-12 rounded-full bg-white/80 px-5 text-sm dark:bg-card/80"
             >
               Voltar para medições
-            </button>
+            </Button>
             <Link
               href="/historico"
-              className="flex min-h-12 items-center justify-center rounded-2xl border border-[var(--border-strong)] px-4 text-sm font-medium text-[var(--text-strong)] transition hover:bg-[var(--surface-alt)]"
+              className={cn(
+                buttonVariants({ variant: "outline" }),
+                "h-12 rounded-full bg-white/80 px-5 text-sm dark:bg-card/80",
+              )}
             >
               Abrir histórico local
             </Link>

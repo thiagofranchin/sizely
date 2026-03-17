@@ -11,14 +11,14 @@ export function InstructionBox({
 }: InstructionBoxProps) {
   return (
     <div
-      className={`rounded-[24px] border px-4 py-4 ${
+      className={`luxury-panel px-5 py-4 ${
         tone === "warning"
-          ? "border-amber-200 bg-amber-50"
-          : "border-[var(--border-soft)] bg-[var(--surface-alt)]"
+          ? "border-amber-200 bg-amber-50/90"
+          : "bg-[color:var(--surface-alt)]"
       }`}
     >
       <h2
-        className={`text-sm font-semibold ${
+        className={`text-sm font-semibold uppercase tracking-[0.18em] ${
           tone === "warning" ? "text-amber-950" : "text-[var(--text-strong)]"
         }`}
       >

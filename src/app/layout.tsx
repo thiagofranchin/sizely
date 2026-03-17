@@ -1,19 +1,24 @@
 import type { Metadata } from "next";
-import { Manrope, Space_Grotesk, Geist } from "next/font/google";
+import { IBM_Plex_Mono, Libre_Baskerville, Poppins } from "next/font/google";
 import "./globals.css";
 import { ServiceWorkerRegister } from "@/components/pwa/service-worker-register";
-import { cn } from "@/lib/utils";
 
-const geist = Geist({subsets:['latin'],variable:'--font-sans'});
-
-const manrope = Manrope({
-  variable: "--font-manrope",
+const poppins = Poppins({
+  variable: "--font-poppins",
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
 });
 
-const spaceGrotesk = Space_Grotesk({
-  variable: "--font-space-grotesk",
+const libreBaskerville = Libre_Baskerville({
+  variable: "--font-libre-baskerville",
   subsets: ["latin"],
+  weight: ["400", "700"],
+});
+
+const ibmPlexMono = IBM_Plex_Mono({
+  variable: "--font-ibm-plex-mono",
+  subsets: ["latin"],
+  weight: ["400", "500"],
 });
 
 export const metadata: Metadata = {
@@ -21,6 +26,10 @@ export const metadata: Metadata = {
   description:
     "Ferramenta client-side para medir roupas a partir de fotos com calibração manual por referência.",
   manifest: "/manifest.webmanifest",
+  icons: {
+    icon: "/icon.svg",
+    apple: "/apple-icon.svg",
+  },
   appleWebApp: {
     capable: true,
     title: "Sizely",
@@ -37,8 +46,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="pt-BR" className={cn("font-sans", geist.variable)}>
-      <body className={`${manrope.variable} ${spaceGrotesk.variable}`}>
+    <html
+      lang="pt-BR"
+      className={`${poppins.variable} ${libreBaskerville.variable} ${ibmPlexMono.variable}`}
+    >
+      <body>
         <ServiceWorkerRegister />
         {children}
       </body>
