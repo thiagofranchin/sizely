@@ -20,7 +20,11 @@ export function saveDraft(draft: ImageDraft) {
   }
 
   const nextRaw = JSON.stringify(draft);
-  sessionStorage.setItem(DRAFT_STORAGE_KEY, nextRaw);
+  try {
+    sessionStorage.setItem(DRAFT_STORAGE_KEY, nextRaw);
+  } catch {
+    throw new Error("Não foi possível salvar a imagem localmente neste dispositivo.");
+  }
   cachedDraftRaw = nextRaw;
   cachedDraftSnapshot = draft;
   notifyDraftChange();
