@@ -9,7 +9,9 @@ export function ServiceWorkerRegister() {
     }
 
     const registerServiceWorker = () => {
-      navigator.serviceWorker.register("/sw.js").catch(() => undefined);
+      navigator.serviceWorker.register("/sw.js").catch((error: unknown) => {
+        console.error("Falha ao registrar service worker", error);
+      });
     };
 
     if (document.readyState === "complete") {

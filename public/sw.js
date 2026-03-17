@@ -1,11 +1,21 @@
-const CACHE_NAME = "sizely-shell-v1";
-const APP_SHELL = ["/", "/historico", "/offline", "/manifest.webmanifest", "/icons/icon-192.svg", "/icons/icon-512.svg"];
+const CACHE_NAME = "sizely-shell-v2";
+const APP_SHELL = [
+  "/",
+  "/historico",
+  "/offline",
+  "/manifest.webmanifest",
+  "/icons/icon-192.svg",
+  "/icons/icon-512.svg",
+];
+
+function isCacheableResponse(response) {
+  return Boolean(response && response.ok && response.type === "basic");
+}
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => cache.addAll(APP_SHELL)),
   );
-  self.skipWaiting();
 });
 
 self.addEventListener("activate", (event) => {
@@ -22,7 +32,6 @@ self.addEventListener("activate", (event) => {
       ),
     ),
   );
-  self.clients.claim();
 });
 
 self.addEventListener("fetch", (event) => {
@@ -40,35 +49,73 @@ self.addEventListener("fetch", (event) => {
 
   if (request.mode === "navigate") {
     event.respondWith(
-      fetch(request)
-        .then((response) => {
-          const clonedResponse = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(request, clonedResponse));
+      (async () => {
+        try {
+          const response = await fetch(request);
+
+          if (isCacheableResponse(response)) {
+            const cache = await caches.open(CACHE_NAME);
+            await cache.put(request, response.clone());
+          }
+
           return response;
-        })
-        .catch(async () => {
+        } catch {
           const cachedResponse = await caches.match(request);
-          return cachedResponse || caches.match("/offline");
-        }),
+
+          if (cachedResponse) {
+            return cachedResponse;
+          }
+
+          const offlineResponse = await caches.match("/offline");
+
+          if (offlineResponse) {
+            return offlineResponse;
+          }
+
+          return new Response("Offline", {
+            status: 503,
+            headers: {
+              "Content-Type": "text/plain; charset=utf-8",
+            },
+          });
+        }
+      })(),
     );
     return;
   }
 
   event.respondWith(
-    caches.match(request).then((cachedResponse) => {
+    (async () => {
+      const cachedResponse = await caches.match(request);
+
       if (cachedResponse) {
         return cachedResponse;
       }
 
-      return fetch(request).then((response) => {
-        if (!response || response.status !== 200 || response.type !== "basic") {
-          return response;
+      try {
+        const response = await fetch(request);
+
+        if (isCacheableResponse(response)) {
+          const cache = await caches.open(CACHE_NAME);
+          await cache.put(request, response.clone());
         }
 
-        const clonedResponse = response.clone();
-        caches.open(CACHE_NAME).then((cache) => cache.put(request, clonedResponse));
         return response;
-      });
-    }),
+      } catch {
+        if (request.destination === "image") {
+          return new Response("", {
+            status: 504,
+            statusText: "Gateway Timeout",
+          });
+        }
+
+        return new Response("Offline", {
+          status: 503,
+          headers: {
+            "Content-Type": "text/plain; charset=utf-8",
+          },
+        });
+      }
+    })(),
   );
 });
