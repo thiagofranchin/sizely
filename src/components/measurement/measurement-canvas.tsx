@@ -59,7 +59,6 @@ type PointerPreview = {
 };
 
 const POINT_HIT_RADIUS = 22;
-const MIN_SCALE = 0.4;
 const MAX_SCALE = 6;
 
 function ToolbarIconButton({
@@ -183,6 +182,16 @@ export function MeasurementCanvas({
     y: point.y * activeViewport.scale + activeViewport.offsetY,
   });
 
+  const getFitScale = () => {
+    const image = imageRef.current;
+
+    if (!image || !surfaceSize.width || !surfaceSize.height) {
+      return 1;
+    }
+
+    return Math.min(surfaceSize.width / image.width, surfaceSize.height / image.height);
+  };
+
   const normalizeViewport = (nextViewport: Viewport) => {
     const image = imageRef.current;
 
@@ -251,7 +260,7 @@ export function MeasurementCanvas({
       return;
     }
 
-    const fitScale = Math.min(surfaceSize.width / image.width, surfaceSize.height / image.height);
+    const fitScale = getFitScale();
     const nextViewport = normalizeViewport({
       scale: fitScale,
       offsetX: (surfaceSize.width - image.width * fitScale) / 2,
@@ -449,7 +458,7 @@ export function MeasurementCanvas({
       x: (centerX - activeViewport.offsetX) / activeViewport.scale,
       y: (centerY - activeViewport.offsetY) / activeViewport.scale,
     };
-    const nextScale = clampNumber(activeViewport.scale * multiplier, MIN_SCALE, MAX_SCALE);
+    const nextScale = clampNumber(activeViewport.scale * multiplier, getFitScale(), MAX_SCALE);
     setDragState(null);
     setPointerPreview(null);
     updateViewport({
