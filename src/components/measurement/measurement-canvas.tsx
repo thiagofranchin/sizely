@@ -2,16 +2,19 @@
 
 import {
   type PointerEvent as ReactPointerEvent,
+  type ReactNode,
   useEffect,
   useRef,
   useState,
 } from "react";
+import { Plus, Ruler, Type, ZoomIn, ZoomOut } from "lucide-react";
 import { clampNumber } from "@/lib/measurement/math";
 import type { Point } from "@/lib/types/measurement";
 
 export type MeasurementCanvasLine = {
   id: string;
   label: string;
+  overlayValue?: string;
   color: string;
   points: [Point | null, Point | null];
   active?: boolean;
@@ -24,6 +27,8 @@ type MeasurementCanvasProps = {
   activeLineId: string;
   onPlacePoint: (lineId: string, point: Point) => void;
   onUpdatePoint: (lineId: string, pointIndex: 0 | 1, point: Point) => void;
+  onAddMeasurement?: () => void;
+  addMeasurementLabel?: string;
 };
 
 type DragState =
@@ -56,6 +61,38 @@ type PointerPreview = {
 const POINT_HIT_RADIUS = 22;
 const MIN_SCALE = 0.4;
 const MAX_SCALE = 6;
+
+function ToolbarIconButton({
+  onClick,
+  label,
+  active = false,
+  neutralActive = false,
+  children,
+}: {
+  onClick: () => void;
+  label: string;
+  active?: boolean;
+  neutralActive?: boolean;
+  children: ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label={label}
+      title={label}
+      className={`inline-flex h-10 w-10 items-center justify-center rounded-2xl border transition-all duration-300 ease-out ${
+        active
+          ? neutralActive
+            ? "border-[var(--border-soft)] bg-white/85 text-[var(--text-strong)] shadow-sm dark:bg-card/90"
+            : "border-primary/40 bg-primary text-primary-foreground shadow-sm"
+          : "border-[var(--border-soft)] bg-[var(--surface-alt)] text-[var(--text-strong)] hover:border-primary/30 hover:bg-white/80 dark:hover:bg-card/90"
+      }`}
+    >
+      {children}
+    </button>
+  );
+}
 
 function drawCrossMarker(
   context: CanvasRenderingContext2D,
@@ -127,6 +164,8 @@ export function MeasurementCanvas({
   activeLineId,
   onPlacePoint,
   onUpdatePoint,
+  onAddMeasurement,
+  addMeasurementLabel = "Adicionar medida",
 }: MeasurementCanvasProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -137,6 +176,7 @@ export function MeasurementCanvas({
   const [dragState, setDragState] = useState<DragState>(null);
   const [surfaceSize, setSurfaceSize] = useState({ width: 0, height: 0 });
   const [pointerPreview, setPointerPreview] = useState<PointerPreview | null>(null);
+  const [overlayMode, setOverlayMode] = useState<"label" | "value">("label");
 
   const imageToScreen = (point: Point, activeViewport: Viewport) => ({
     x: point.x * activeViewport.scale + activeViewport.offsetX,
@@ -249,14 +289,18 @@ export function MeasurementCanvas({
         context.lineTo(endScreen.x, endScreen.y);
         context.stroke();
 
+        const overlayText =
+          overlayMode === "value" && line.overlayValue ? line.overlayValue : line.label;
         const midX = (startScreen.x + endScreen.x) / 2;
         const midY = (startScreen.y + endScreen.y) / 2;
-        context.fillStyle = "rgba(10, 16, 18, 0.9)";
-        context.fillRect(midX - 46, midY - 28, 92, 22);
-        context.fillStyle = "#ffffff";
         context.font = "12px sans-serif";
+        const textWidth = context.measureText(overlayText).width;
+        const pillWidth = Math.max(78, textWidth + 22);
+        context.fillStyle = "rgba(10, 16, 18, 0.9)";
+        context.fillRect(midX - pillWidth / 2, midY - 28, pillWidth, 22);
+        context.fillStyle = "#ffffff";
         context.textAlign = "center";
-        context.fillText(line.label, midX, midY - 12);
+        context.fillText(overlayText, midX, midY - 12);
       }
 
       for (const point of line.points) {
@@ -275,7 +319,7 @@ export function MeasurementCanvas({
       drawCrossMarker(context, pointerPreview.screenX, pointerPreview.screenY, 10, "#111827");
       drawZoomLens(context, image, viewport, pointerPreview, surfaceSize.width);
     }
-  }, [lines, pointerPreview, surfaceSize.height, surfaceSize.width, toolMode, viewport]);
+  }, [lines, overlayMode, pointerPreview, surfaceSize.height, surfaceSize.width, toolMode, viewport]);
 
   function screenToImage(clientX: number, clientY: number) {
     const container = containerRef.current;
@@ -498,21 +542,36 @@ export function MeasurementCanvas({
             Mover
           </button>
         </div>
-        <div className="flex flex-wrap gap-2">
-          <button
-            type="button"
-            onClick={() => zoomBy(1.12)}
-            className="min-h-10 rounded-xl border border-[var(--border-soft)] px-4 text-sm font-medium text-[var(--text-strong)]"
+        <div className="flex flex-wrap items-center gap-2 rounded-[1.35rem] border border-[var(--border-soft)] bg-[var(--surface-alt)] p-1.5">
+          <ToolbarIconButton onClick={() => zoomBy(1.12)} label="Aumentar zoom">
+            <ZoomIn className="size-4" />
+          </ToolbarIconButton>
+          <ToolbarIconButton onClick={() => zoomBy(0.88)} label="Reduzir zoom">
+            <ZoomOut className="size-4" />
+          </ToolbarIconButton>
+          <ToolbarIconButton
+            onClick={() =>
+              setOverlayMode((currentMode) => (currentMode === "label" ? "value" : "label"))
+            }
+            label={
+              overlayMode === "label"
+                ? "Mostrar medidas nas linhas"
+                : "Mostrar nomes nas linhas"
+            }
+            active={overlayMode === "label"}
+            neutralActive
           >
-            Zoom +
-          </button>
-          <button
-            type="button"
-            onClick={() => zoomBy(0.88)}
-            className="min-h-10 rounded-xl border border-[var(--border-soft)] px-4 text-sm font-medium text-[var(--text-strong)]"
-          >
-            Zoom -
-          </button>
+            {overlayMode === "label" ? (
+              <Ruler className="size-4" />
+            ) : (
+              <Type className="size-4" />
+            )}
+          </ToolbarIconButton>
+          {onAddMeasurement ? (
+            <ToolbarIconButton onClick={onAddMeasurement} label={addMeasurementLabel}>
+              <Plus className="size-5" />
+            </ToolbarIconButton>
+          ) : null}
         </div>
       </div>
 

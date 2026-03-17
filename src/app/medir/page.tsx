@@ -263,12 +263,15 @@ export default function MeasurePage() {
     {
       id: "reference",
       label: "Referência",
+      overlayValue: referenceRealSizeCm ? formatCentimeters(referenceRealSizeCm) : undefined,
       color: "#2563eb",
       points: referencePoints,
     },
     ...displayedMeasurements.map((measurement, index) => ({
       id: measurement.id,
       label: measurement.label.trim() || `Medida ${index + 1}`,
+      overlayValue:
+        measurement.valueCm !== null ? formatCentimeters(measurement.valueCm) : "Pendente",
       color: lineColors[index % lineColors.length],
       points: measurement.points,
       active: measurement.id === activeMeasurement?.id,
@@ -343,6 +346,8 @@ export default function MeasurePage() {
               activeLineId={activeMeasurement?.id ?? "reference"}
               onPlacePoint={handleCanvasPlacePoint}
               onUpdatePoint={handleCanvasUpdatePoint}
+              onAddMeasurement={handleAddMeasurement}
+              addMeasurementLabel="Adicionar medida"
             />
 
             <section className="luxury-panel grid gap-4 p-5 sm:p-6">
