@@ -38,6 +38,9 @@ export function ReferenceStep({
     {
       id: "reference",
       label: "Referência",
+      overlayValue: referenceSizeCm
+        ? formatCentimeters(Number(referenceSizeCm.replace(",", ".")))
+        : undefined,
       color: "#2563eb",
       points,
       active: true,
@@ -128,7 +131,7 @@ export function ReferenceStep({
             value={referenceSizeCm}
             onChange={(event) => onReferenceSizeChange(event.target.value)}
             placeholder="Ex.: 8,5"
-            className={`min-h-12 rounded-[1.3rem] border bg-white/90 px-4 text-base text-slate-900 outline-none transition focus:border-primary dark:bg-card/90 dark:text-foreground ${
+            className={`min-h-12 w-full min-w-0 max-w-full rounded-[1.3rem] border bg-white/90 px-4 text-base text-slate-900 outline-none transition focus:border-primary dark:bg-card/90 dark:text-foreground ${
               shouldPulse
                 ? "border-primary shadow-[0_0_0_5px_rgba(233,194,148,0.4)]"
                 : "border-[var(--border-soft)]"

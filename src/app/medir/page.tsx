@@ -338,7 +338,7 @@ export default function MeasurePage() {
 
       {currentStep === 1 ? (
         <section className="grid gap-5">
-          <div className="grid gap-5 xl:grid-cols-[1.4fr_0.6fr]">
+          <div className="grid gap-5 xl:grid-cols-[1.4fr_0.6fr] [&>*]:min-w-0">
             <MeasurementCanvas
               imageSrc={draft.imageDataUrl}
               imageAlt="Imagem carregada para medição livre"
@@ -350,9 +350,9 @@ export default function MeasurePage() {
               addMeasurementLabel="Adicionar medida"
             />
 
-            <section className="luxury-panel grid gap-4 p-5 sm:p-6">
-              <div className="flex items-center justify-between gap-3">
-                <div>
+            <section className="luxury-panel min-w-0 grid gap-4 p-5 sm:p-6">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div className="min-w-0">
                   <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--text-muted)]">
                     Medidas
                   </p>
@@ -371,7 +371,7 @@ export default function MeasurePage() {
                 </Button>
               </div>
 
-              <div className="grid gap-3 md:grid-cols-2">
+              <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-1">
                 {displayedMeasurements.map((measurement, index) => {
                   const isActive = measurement.id === activeMeasurement?.id;
                   const measurementLabel = measurement.label.trim() || `Medida ${index + 1}`;
@@ -379,7 +379,7 @@ export default function MeasurePage() {
                   return (
                     <div
                       key={measurement.id}
-                      className={`rounded-[24px] border p-4 transition ${
+                      className={`min-w-0 rounded-[24px] border p-4 transition ${
                         isActive
                           ? "border-primary/35 bg-[color:var(--brand-soft)] shadow-sm"
                           : "border-[var(--border-soft)] bg-white/70 dark:bg-card/80"
@@ -416,12 +416,12 @@ export default function MeasurePage() {
                             handleUpdateMeasurementLabel(measurement.id, event.target.value)
                           }
                           onFocus={() => setActiveMeasurementId(measurement.id)}
-                          className="min-h-11 rounded-[1.1rem] border border-[var(--border-soft)] bg-white/90 px-4 text-sm text-slate-900 outline-none transition focus:border-primary dark:bg-card/90 dark:text-foreground"
+                          className="min-h-11 w-full min-w-0 max-w-full rounded-[1.1rem] border border-[var(--border-soft)] bg-white/90 px-4 text-sm text-slate-900 outline-none transition focus:border-primary dark:bg-card/90 dark:text-foreground"
                           placeholder={`Ex.: Medida ${index + 1}`}
                         />
                       </label>
 
-                      <div className="mt-3 grid grid-cols-2 gap-2">
+                      <div className="mt-3 grid grid-cols-1 gap-2">
                         <Button
                           type="button"
                           variant="outline"
@@ -429,19 +429,19 @@ export default function MeasurePage() {
                             setActiveMeasurementId(measurement.id);
                             handleResetMeasurement(measurement.id);
                           }}
-                          className="h-10 rounded-full bg-white/80 px-3 text-sm dark:bg-card/80"
+                          aria-label={`Medir ${measurementLabel}`}
+                          className="h-10 w-full rounded-full bg-white/80 px-3 text-sm dark:bg-card/80"
                         >
                           <ScissorsLineDashed className="size-4" />
-                          Medir
                         </Button>
                         <Button
                           type="button"
                           variant="outline"
                           onClick={() => handleRemoveMeasurement(measurement.id)}
-                          className="h-10 rounded-full border-red-200 bg-white/80 px-3 text-sm text-red-700 hover:bg-red-50 dark:border-red-900 dark:bg-red-950/40 dark:text-red-200 dark:hover:bg-red-950/60"
+                          aria-label={`Excluir ${measurementLabel}`}
+                          className="h-10 w-full rounded-full border-red-200 bg-white/80 px-3 text-sm text-red-700 hover:bg-red-50 dark:border-red-900 dark:bg-red-950/40 dark:text-red-200 dark:hover:bg-red-950/60"
                         >
                           <Trash2 className="size-4" />
-                          Excluir
                         </Button>
                       </div>
                     </div>

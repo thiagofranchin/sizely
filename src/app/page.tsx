@@ -114,14 +114,14 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="grid gap-4 lg:grid-cols-[1.15fr_0.85fr]">
+      <section className="grid gap-4 lg:grid-cols-[1.15fr_0.85fr] [&>*]:min-w-0">
         <ActionCard
           eyebrow="Captura"
           icon={<Camera className="size-6" />}
           title="Nova medição"
           description="Escolha entre câmera e galeria. O Sizely abre a imagem em uma prancheta de medição com referência manual e pontos editáveis."
           action={
-            <div className="grid gap-3 sm:grid-cols-2">
+            <div className="grid gap-3 xl:grid-cols-2">
               <CameraCaptureInput
                 onFileSelected={(file) => handleFileSelected(file, "camera")}
               />

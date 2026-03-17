@@ -10,11 +10,11 @@ type CameraCaptureInputProps = {
 
 export function CameraCaptureInput({ onFileSelected }: CameraCaptureInputProps) {
   return (
-    <label className="block">
+    <label className="block w-full min-w-0">
       <span
         className={cn(
           buttonVariants({ variant: "default" }),
-          "h-12 w-full cursor-pointer rounded-full px-5 text-sm shadow-sm",
+          "h-12 w-full min-w-0 cursor-pointer rounded-full px-5 text-center text-sm whitespace-normal shadow-sm",
         )}
       >
         <Camera className="size-4.5" />

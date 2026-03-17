@@ -10,11 +10,11 @@ type ImageUploaderProps = {
 
 export function ImageUploader({ onFileSelected }: ImageUploaderProps) {
   return (
-    <label className="block">
+    <label className="block w-full min-w-0">
       <span
         className={cn(
           buttonVariants({ variant: "outline" }),
-          "h-12 w-full cursor-pointer rounded-full bg-white/80 px-5 text-sm shadow-sm dark:bg-card/80",
+          "h-12 w-full min-w-0 cursor-pointer rounded-full bg-white/80 px-5 text-center text-sm whitespace-normal shadow-sm dark:bg-card/80",
         )}
       >
         <Upload className="size-4.5" />
