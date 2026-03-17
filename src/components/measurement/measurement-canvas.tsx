@@ -183,6 +183,32 @@ export function MeasurementCanvas({
     y: point.y * activeViewport.scale + activeViewport.offsetY,
   });
 
+  const normalizeViewport = (nextViewport: Viewport) => {
+    const image = imageRef.current;
+
+    if (!image || !surfaceSize.width || !surfaceSize.height) {
+      return nextViewport;
+    }
+
+    const renderedWidth = image.width * nextViewport.scale;
+    const renderedHeight = image.height * nextViewport.scale;
+
+    const offsetX =
+      renderedWidth <= surfaceSize.width
+        ? (surfaceSize.width - renderedWidth) / 2
+        : clampNumber(nextViewport.offsetX, surfaceSize.width - renderedWidth, 0);
+    const offsetY =
+      renderedHeight <= surfaceSize.height
+        ? (surfaceSize.height - renderedHeight) / 2
+        : clampNumber(nextViewport.offsetY, surfaceSize.height - renderedHeight, 0);
+
+    return {
+      ...nextViewport,
+      offsetX,
+      offsetY,
+    };
+  };
+
   useEffect(() => {
     const image = new window.Image();
     image.onload = () => {
@@ -225,19 +251,34 @@ export function MeasurementCanvas({
       return;
     }
 
-    const fitScale = Math.min(
-      surfaceSize.width / image.width,
-      surfaceSize.height / image.height,
-    );
-    const nextViewport = {
+    const fitScale = Math.min(surfaceSize.width / image.width, surfaceSize.height / image.height);
+    const nextViewport = normalizeViewport({
       scale: fitScale,
       offsetX: (surfaceSize.width - image.width * fitScale) / 2,
       offsetY: (surfaceSize.height - image.height * fitScale) / 2,
-    };
+    });
 
     viewportRef.current = nextViewport;
     setViewport(nextViewport);
   }, [surfaceSize.width, surfaceSize.height, imageSrc]);
+
+  useEffect(() => {
+    const activeViewport = viewportRef.current;
+
+    if (!activeViewport) {
+      return;
+    }
+
+    const nextViewport = normalizeViewport(activeViewport);
+
+    if (
+      nextViewport.offsetX !== activeViewport.offsetX ||
+      nextViewport.offsetY !== activeViewport.offsetY
+    ) {
+      viewportRef.current = nextViewport;
+      setViewport(nextViewport);
+    }
+  }, [surfaceSize.height, surfaceSize.width]);
 
   useEffect(() => {
     viewportRef.current = viewport;
@@ -389,8 +430,9 @@ export function MeasurementCanvas({
   }
 
   function updateViewport(nextViewport: Viewport) {
-    viewportRef.current = nextViewport;
-    setViewport(nextViewport);
+    const normalizedViewport = normalizeViewport(nextViewport);
+    viewportRef.current = normalizedViewport;
+    setViewport(normalizedViewport);
   }
 
   function zoomBy(multiplier: number) {
@@ -408,6 +450,8 @@ export function MeasurementCanvas({
       y: (centerY - activeViewport.offsetY) / activeViewport.scale,
     };
     const nextScale = clampNumber(activeViewport.scale * multiplier, MIN_SCALE, MAX_SCALE);
+    setDragState(null);
+    setPointerPreview(null);
     updateViewport({
       scale: nextScale,
       offsetX: centerX - imagePoint.x * nextScale,
