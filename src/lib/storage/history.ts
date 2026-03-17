@@ -3,6 +3,9 @@ import type { HistoryItem } from "@/lib/types/measurement";
 
 const HISTORY_EVENT = "sizely-history-updated";
 
+let cachedHistoryRaw: string | null = null;
+let cachedHistorySnapshot: HistoryItem[] = [];
+
 function isHistoryArray(value: unknown): value is HistoryItem[] {
   return Array.isArray(value);
 }
@@ -23,13 +26,24 @@ export function readHistory() {
   const rawValue = localStorage.getItem(HISTORY_STORAGE_KEY);
 
   if (!rawValue) {
+    cachedHistoryRaw = null;
+    cachedHistorySnapshot = [];
     return [] as HistoryItem[];
+  }
+
+  if (rawValue === cachedHistoryRaw) {
+    return cachedHistorySnapshot;
   }
 
   try {
     const parsed = JSON.parse(rawValue) as unknown;
-    return isHistoryArray(parsed) ? parsed : [];
+    const nextItems = isHistoryArray(parsed) ? parsed : [];
+    cachedHistoryRaw = rawValue;
+    cachedHistorySnapshot = nextItems;
+    return nextItems;
   } catch {
+    cachedHistoryRaw = null;
+    cachedHistorySnapshot = [];
     return [];
   }
 }
@@ -40,6 +54,8 @@ export function writeHistory(items: HistoryItem[]) {
   }
 
   localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(items));
+  cachedHistoryRaw = localStorage.getItem(HISTORY_STORAGE_KEY);
+  cachedHistorySnapshot = items;
   notifyHistoryChange();
 }
 

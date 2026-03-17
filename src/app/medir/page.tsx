@@ -22,7 +22,7 @@ import {
   convertPixelsToCentimeters,
   pointsAreValid,
 } from "@/lib/measurement/math";
-import { clearDraft, readDraft } from "@/lib/storage/draft";
+import { clearDraft, readDraft, subscribeDraft } from "@/lib/storage/draft";
 import { appendHistoryItem } from "@/lib/storage/history";
 import { createId } from "@/lib/utils/id";
 import type {
@@ -66,7 +66,7 @@ function recalculateMeasurement(
 export default function MeasurePage() {
   const router = useRouter();
   const draft = useSyncExternalStore(
-    () => () => undefined,
+    subscribeDraft,
     readDraft,
     () => null,
   );
