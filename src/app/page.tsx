@@ -1,65 +1,144 @@
-import Image from "next/image";
+"use client";
+
+import { useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { ActionCard } from "@/components/ui/action-card";
+import { Header } from "@/components/ui/header";
+import { InstructionBox } from "@/components/ui/instruction-box";
+import { CameraCaptureInput } from "@/components/measurement/camera-capture-input";
+import { ImageUploader } from "@/components/measurement/image-uploader";
+import { InstallPromptButton } from "@/components/pwa/install-prompt-button";
+import { saveDraft } from "@/lib/storage/draft";
+import type { SourceKind } from "@/lib/types/measurement";
 
 export default function Home() {
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  function handleFileSelected(file: File, sourceKind: SourceKind) {
+    if (!file.type.startsWith("image/")) {
+      setErrorMessage("Selecione uma imagem válida para iniciar a medição.");
+      return;
+    }
+
+    setIsLoading(true);
+    setErrorMessage(null);
+
+    const reader = new FileReader();
+
+    reader.onload = () => {
+      const result = reader.result;
+
+      if (typeof result !== "string") {
+        setIsLoading(false);
+        setErrorMessage("Não foi possível ler a imagem selecionada.");
+        return;
+      }
+
+      saveDraft({
+        imageDataUrl: result,
+        sourceName: file.name || "Imagem sem nome",
+        sourceKind,
+        createdAt: new Date().toISOString(),
+      });
+      router.push("/medir");
+    };
+
+    reader.onerror = () => {
+      setIsLoading(false);
+      setErrorMessage("Falha ao carregar a imagem.");
+    };
+
+    reader.readAsDataURL(file);
+  }
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
+    <main className="mx-auto flex min-h-screen w-full max-w-6xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
+      <section className="rounded-[32px] border border-[var(--border-soft)] bg-[var(--surface)] px-5 py-6 shadow-[var(--shadow-card)] sm:px-7">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <Header
+            title="Medição manual de roupas por foto"
+            description="Carregue uma imagem, calibre a escala com qualquer objeto conhecido e marque as medidas da peça em um fluxo guiado, todo no próprio navegador."
+          />
+          <InstallPromptButton />
+        </div>
+      </section>
+
+      <InstructionBox
+        title="Antes de começar"
+        description="Deixe a roupa estendida, mantenha o objeto de referência no mesmo plano da peça e, se possível, fotografe de cima para reduzir distorções."
+      />
+
+      {errorMessage ? (
+        <InstructionBox title="Não foi possível iniciar" description={errorMessage} tone="warning" />
+      ) : null}
+
+      <section className="grid gap-4 lg:grid-cols-[1.3fr_0.7fr]">
+        <ActionCard
+          icon="📷"
+          title="Nova medição"
+          description="Use a câmera do celular ou envie uma imagem da galeria. O Sizely abre a foto e conduz a medição passo a passo."
+          action={
+            <div className="grid gap-3 sm:grid-cols-2">
+              <CameraCaptureInput
+                onFileSelected={(file) => handleFileSelected(file, "camera")}
+              />
+              <ImageUploader
+                onFileSelected={(file) => handleFileSelected(file, "upload")}
+              />
+            </div>
+          }
         />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+
+        <ActionCard
+          icon="🗂️"
+          title="Histórico local"
+          description="Revise medições salvas, copie novamente os resultados e mantenha um histórico leve no próprio dispositivo."
+          action={
+            <Link
+              href="/historico"
+              className="flex min-h-12 items-center justify-center rounded-2xl border border-[var(--border-strong)] px-4 text-sm font-medium text-[var(--text-strong)] transition hover:bg-[var(--surface-alt)]"
             >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+              Abrir histórico
+            </Link>
+          }
+        />
+      </section>
+
+      <section className="grid gap-4 lg:grid-cols-3">
+        {[
+          {
+            title: "1. Carregue a foto",
+            description: "Capture uma peça já posicionada ou selecione um arquivo existente.",
+          },
+          {
+            title: "2. Calibre a referência",
+            description: "Use qualquer objeto visível, marque dois pontos e informe a medida real.",
+          },
+          {
+            title: "3. Marque as medidas",
+            description: "Siga o fluxo guiado e ajuste pontos sempre que precisar refinar o resultado.",
+          },
+        ].map((item) => (
+          <article
+            key={item.title}
+            className="rounded-[28px] border border-[var(--border-soft)] bg-[var(--surface)] p-5 shadow-[var(--shadow-card)]"
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+            <h2 className="font-[var(--font-space-grotesk)] text-xl font-medium text-[var(--text-strong)]">
+              {item.title}
+            </h2>
+            <p className="mt-3 text-sm leading-6 text-[var(--text-soft)]">
+              {item.description}
+            </p>
+          </article>
+        ))}
+      </section>
+
+      {isLoading ? (
+        <p className="text-sm text-[var(--text-soft)]">Preparando imagem para medição...</p>
+      ) : null}
+    </main>
   );
 }
