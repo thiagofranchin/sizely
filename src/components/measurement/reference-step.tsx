@@ -31,6 +31,8 @@ export function ReferenceStep({
   onReset,
 }: ReferenceStepProps) {
   const inputRef = useRef<HTMLInputElement | null>(null);
+  const focusTimeoutRef = useRef<number | null>(null);
+  const pulseTimeoutRef = useRef<number | null>(null);
   const [shouldPulse, setShouldPulse] = useState(false);
   const lines: MeasurementCanvasLine[] = [
     {
@@ -47,6 +49,16 @@ export function ReferenceStep({
     : null;
 
   useEffect(() => {
+    if (focusTimeoutRef.current) {
+      window.clearTimeout(focusTimeoutRef.current);
+      focusTimeoutRef.current = null;
+    }
+
+    if (pulseTimeoutRef.current) {
+      window.clearTimeout(pulseTimeoutRef.current);
+      pulseTimeoutRef.current = null;
+    }
+
     if (!pointsAreValid(points) || referenceSizeCm) {
       return;
     }
@@ -57,16 +69,32 @@ export function ReferenceStep({
       return;
     }
 
-    input.scrollIntoView({
-      behavior: "smooth",
-      block: "center",
-    });
+    focusTimeoutRef.current = window.setTimeout(() => {
+      input.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
 
-    window.setTimeout(() => {
       input.focus();
       setShouldPulse(true);
-      window.setTimeout(() => setShouldPulse(false), 1200);
-    }, 220);
+      pulseTimeoutRef.current = window.setTimeout(() => {
+        setShouldPulse(false);
+        pulseTimeoutRef.current = null;
+      }, 1200);
+      focusTimeoutRef.current = null;
+    }, 4000);
+
+    return () => {
+      if (focusTimeoutRef.current) {
+        window.clearTimeout(focusTimeoutRef.current);
+        focusTimeoutRef.current = null;
+      }
+
+      if (pulseTimeoutRef.current) {
+        window.clearTimeout(pulseTimeoutRef.current);
+        pulseTimeoutRef.current = null;
+      }
+    };
   }, [points, referenceSizeCm]);
 
   return (
