@@ -7,8 +7,10 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { formatCentimeters, formatDateTime } from "@/lib/measurement/format";
 import { readHistory, removeHistoryItem, subscribeHistory } from "@/lib/storage/history";
 
+const EMPTY_HISTORY: ReturnType<typeof readHistory> = [];
+
 export function HistoryList() {
-  const items = useSyncExternalStore(subscribeHistory, readHistory, () => []);
+  const items = useSyncExternalStore(subscribeHistory, readHistory, () => EMPTY_HISTORY);
 
   function handleDelete(itemId: string) {
     removeHistoryItem(itemId);
@@ -32,9 +34,20 @@ export function HistoryList() {
         >
           <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <div>
-              <h2 className="font-[var(--font-space-grotesk)] text-xl font-medium text-[var(--text-strong)]">
-                {item.garmentTypeLabel}
-              </h2>
+            {(() => {
+              const itemTitle =
+                "title" in item && typeof item.title === "string"
+                  ? item.title
+                  : "garmentTypeLabel" in item && typeof item.garmentTypeLabel === "string"
+                    ? item.garmentTypeLabel
+                    : "Medição";
+
+              return (
+                <h2 className="font-[var(--font-space-grotesk)] text-xl font-medium text-[var(--text-strong)]">
+                  {itemTitle}
+                </h2>
+              );
+            })()}
               <p className="mt-2 text-sm leading-6 text-[var(--text-soft)]">
                 {formatDateTime(item.createdAt)} · origem {item.sourceName}
               </p>

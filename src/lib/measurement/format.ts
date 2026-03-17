@@ -18,8 +18,14 @@ export function formatDateTime(value: string) {
 }
 
 export function buildResultsText(result: MeasurementResult | HistoryItem) {
+  const title =
+    "title" in result && typeof result.title === "string"
+      ? result.title
+      : "garmentTypeLabel" in result && typeof result.garmentTypeLabel === "string"
+        ? result.garmentTypeLabel
+        : "Medição";
   const lines = [
-    `Tipo de peça: ${result.garmentTypeLabel}`,
+    `Medição: ${title}`,
     `Data: ${formatDateTime(result.createdAt)}`,
     "",
     "Medidas:",

@@ -23,12 +23,14 @@ export function ActionCard({
           <h2 className="font-[var(--font-space-grotesk)] text-xl font-medium text-[var(--text-strong)]">
             {title}
           </h2>
-          <p className="mt-2 text-sm leading-6 text-[var(--text-soft)]">
-            {description}
-          </p>
+          {description ? (
+            <p className="mt-2 text-sm leading-6 text-[var(--text-soft)]">
+              {description}
+            </p>
+          ) : null}
         </div>
       </div>
-      <div className="mt-5">{action}</div>
+      <div className={description ? "mt-5" : "mt-4"}>{action}</div>
     </article>
   );
 }

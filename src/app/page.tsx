@@ -56,20 +56,13 @@ export default function Home() {
 
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-6xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
-      <section className="rounded-[32px] border border-[var(--border-soft)] bg-[var(--surface)] px-5 py-6 shadow-[var(--shadow-card)] sm:px-7">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-          <Header
-            title="Medição manual de roupas por foto"
-            description="Carregue uma imagem, calibre a escala com qualquer objeto conhecido e marque as medidas da peça em um fluxo guiado, todo no próprio navegador."
-          />
-          <InstallPromptButton />
-        </div>
+      <section className="rounded-[32px] border border-[var(--border-soft)] bg-[var(--surface)] px-5 py-5 shadow-[var(--shadow-card)] sm:px-7">
+        <Header
+          title="Medidor por referência"
+          description="Carregue uma imagem, calibre a escala com qualquer objeto conhecido e marque quantas medidas quiser no próprio navegador."
+          rightSlot={<InstallPromptButton />}
+        />
       </section>
-
-      <InstructionBox
-        title="Antes de começar"
-        description="Deixe a roupa estendida, mantenha o objeto de referência no mesmo plano da peça e, se possível, fotografe de cima para reduzir distorções."
-      />
 
       {errorMessage ? (
         <InstructionBox title="Não foi possível iniciar" description={errorMessage} tone="warning" />
@@ -79,7 +72,7 @@ export default function Home() {
         <ActionCard
           icon="📷"
           title="Nova medição"
-          description="Use a câmera do celular ou envie uma imagem da galeria. O Sizely abre a foto e conduz a medição passo a passo."
+          description=""
           action={
             <div className="grid gap-3 sm:grid-cols-2">
               <CameraCaptureInput
@@ -105,35 +98,6 @@ export default function Home() {
             </Link>
           }
         />
-      </section>
-
-      <section className="grid gap-4 lg:grid-cols-3">
-        {[
-          {
-            title: "1. Carregue a foto",
-            description: "Capture uma peça já posicionada ou selecione um arquivo existente.",
-          },
-          {
-            title: "2. Calibre a referência",
-            description: "Use qualquer objeto visível, marque dois pontos e informe a medida real.",
-          },
-          {
-            title: "3. Marque as medidas",
-            description: "Siga o fluxo guiado e ajuste pontos sempre que precisar refinar o resultado.",
-          },
-        ].map((item) => (
-          <article
-            key={item.title}
-            className="rounded-[28px] border border-[var(--border-soft)] bg-[var(--surface)] p-5 shadow-[var(--shadow-card)]"
-          >
-            <h2 className="font-[var(--font-space-grotesk)] text-xl font-medium text-[var(--text-strong)]">
-              {item.title}
-            </h2>
-            <p className="mt-3 text-sm leading-6 text-[var(--text-soft)]">
-              {item.description}
-            </p>
-          </article>
-        ))}
       </section>
 
       {isLoading ? (

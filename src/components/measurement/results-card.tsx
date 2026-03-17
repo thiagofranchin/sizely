@@ -23,7 +23,7 @@ export function ResultsCard({
             Resultado
           </p>
           <h2 className="mt-2 font-[var(--font-space-grotesk)] text-2xl font-medium text-[var(--text-strong)]">
-            {result.garmentTypeLabel}
+            {result.title}
           </h2>
           <p className="mt-2 text-sm leading-6 text-[var(--text-soft)]">
             Medição criada em {formatDateTime(result.createdAt)} com referência de{" "}

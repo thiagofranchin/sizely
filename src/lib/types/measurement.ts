@@ -1,10 +1,3 @@
-export type GarmentTypeId =
-  | "shirt"
-  | "hoodie"
-  | "pants"
-  | "shorts"
-  | "dress";
-
 export type SourceKind = "camera" | "upload";
 
 export type Point = {
@@ -13,20 +6,6 @@ export type Point = {
 };
 
 export type LinePoints = [Point | null, Point | null];
-
-export type MeasurementDefinition = {
-  id: string;
-  label: string;
-  instruction: string;
-  optional?: boolean;
-};
-
-export type GarmentTypeDefinition = {
-  id: GarmentTypeId;
-  label: string;
-  description: string;
-  measurements: MeasurementDefinition[];
-};
 
 export type Reference = {
   points: LinePoints;
@@ -37,11 +16,8 @@ export type Reference = {
 export type MeasurementEntry = {
   id: string;
   label: string;
-  instruction: string;
-  optional?: boolean;
   points: LinePoints;
   valueCm: number | null;
-  skipped?: boolean;
 };
 
 export type ImageDraft = {
@@ -55,13 +31,10 @@ export type MeasurementResultItem = {
   id: string;
   label: string;
   valueCm: number | null;
-  optional?: boolean;
-  skipped?: boolean;
 };
 
 export type MeasurementResult = {
-  garmentTypeId: GarmentTypeId;
-  garmentTypeLabel: string;
+  title: string;
   createdAt: string;
   sourceName: string;
   sourceKind: SourceKind;

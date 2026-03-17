@@ -1,3 +1,6 @@
+ "use client";
+
+import { useEffect, useRef, useState } from "react";
 import { MeasurementCanvas, type MeasurementCanvasLine } from "@/components/measurement/measurement-canvas";
 import { InstructionBox } from "@/components/ui/instruction-box";
 import { formatCentimeters } from "@/lib/measurement/format";
@@ -25,6 +28,8 @@ export function ReferenceStep({
   onUpdatePoint,
   onReset,
 }: ReferenceStepProps) {
+  const inputRef = useRef<HTMLInputElement | null>(null);
+  const [shouldPulse, setShouldPulse] = useState(false);
   const lines: MeasurementCanvasLine[] = [
     {
       id: "reference",
@@ -38,6 +43,29 @@ export function ReferenceStep({
   const referenceDistance = pointsAreValid(points)
     ? calculateDistanceInPixels(points[0], points[1])
     : null;
+
+  useEffect(() => {
+    if (!pointsAreValid(points) || referenceSizeCm) {
+      return;
+    }
+
+    const input = inputRef.current;
+
+    if (!input) {
+      return;
+    }
+
+    input.scrollIntoView({
+      behavior: "smooth",
+      block: "center",
+    });
+
+    window.setTimeout(() => {
+      input.focus();
+      setShouldPulse(true);
+      window.setTimeout(() => setShouldPulse(false), 1200);
+    }, 220);
+  }, [points, referenceSizeCm]);
 
   return (
     <div className="grid gap-5">
@@ -61,6 +89,7 @@ export function ReferenceStep({
             Medida real do objeto de referência
           </span>
           <input
+            ref={inputRef}
             type="number"
             inputMode="decimal"
             min="0"
@@ -68,7 +97,11 @@ export function ReferenceStep({
             value={referenceSizeCm}
             onChange={(event) => onReferenceSizeChange(event.target.value)}
             placeholder="Ex.: 8,5"
-            className="min-h-12 rounded-2xl border border-[var(--border-soft)] bg-white px-4 text-base text-slate-900 outline-none transition focus:border-[var(--brand)]"
+            className={`min-h-12 rounded-2xl border bg-white px-4 text-base text-slate-900 outline-none transition focus:border-[var(--brand)] ${
+              shouldPulse
+                ? "border-[var(--brand)] shadow-[0_0_0_4px_rgba(191,216,191,0.55)]"
+                : "border-[var(--border-soft)]"
+            }`}
           />
         </label>
 

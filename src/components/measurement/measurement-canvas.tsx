@@ -47,9 +47,78 @@ type Viewport = {
   offsetY: number;
 };
 
+type PointerPreview = {
+  screenX: number;
+  screenY: number;
+  imagePoint: Point;
+};
+
 const POINT_HIT_RADIUS = 22;
 const MIN_SCALE = 0.4;
 const MAX_SCALE = 6;
+
+function drawCrossMarker(
+  context: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  size: number,
+  color: string,
+) {
+  context.save();
+  context.strokeStyle = color;
+  context.lineWidth = 2.5;
+  context.beginPath();
+  context.moveTo(x - size, y - size);
+  context.lineTo(x + size, y + size);
+  context.moveTo(x + size, y - size);
+  context.lineTo(x - size, y + size);
+  context.stroke();
+  context.restore();
+}
+
+function drawZoomLens(
+  context: CanvasRenderingContext2D,
+  image: HTMLImageElement,
+  activeViewport: Viewport,
+  preview: PointerPreview,
+  surfaceWidth: number,
+) {
+  const lensRadius = 44;
+  const lensX = surfaceWidth - lensRadius - 16;
+  const lensY = lensRadius + 16;
+  const sourceHalfSize = 24 / activeViewport.scale;
+
+  context.save();
+  context.beginPath();
+  context.arc(lensX, lensY, lensRadius, 0, Math.PI * 2);
+  context.clip();
+  context.drawImage(
+    image,
+    clampNumber(preview.imagePoint.x - sourceHalfSize, 0, image.width - sourceHalfSize * 2),
+    clampNumber(preview.imagePoint.y - sourceHalfSize, 0, image.height - sourceHalfSize * 2),
+    sourceHalfSize * 2,
+    sourceHalfSize * 2,
+    lensX - lensRadius,
+    lensY - lensRadius,
+    lensRadius * 2,
+    lensRadius * 2,
+  );
+  context.restore();
+
+  context.save();
+  context.strokeStyle = "#111827";
+  context.lineWidth = 2;
+  context.beginPath();
+  context.arc(lensX, lensY, lensRadius, 0, Math.PI * 2);
+  context.stroke();
+  context.beginPath();
+  context.moveTo(lensX - 14, lensY);
+  context.lineTo(lensX + 14, lensY);
+  context.moveTo(lensX, lensY - 14);
+  context.lineTo(lensX, lensY + 14);
+  context.stroke();
+  context.restore();
+}
 
 export function MeasurementCanvas({
   imageSrc,
@@ -67,6 +136,7 @@ export function MeasurementCanvas({
   const [toolMode, setToolMode] = useState<"mark" | "move">("mark");
   const [dragState, setDragState] = useState<DragState>(null);
   const [surfaceSize, setSurfaceSize] = useState({ width: 0, height: 0 });
+  const [pointerPreview, setPointerPreview] = useState<PointerPreview | null>(null);
 
   const imageToScreen = (point: Point, activeViewport: Viewport) => ({
     x: point.x * activeViewport.scale + activeViewport.offsetX,
@@ -189,22 +259,23 @@ export function MeasurementCanvas({
         context.fillText(line.label, midX, midY - 12);
       }
 
-      for (const [index, point] of line.points.entries()) {
+      for (const point of line.points) {
         if (!point) {
           continue;
         }
 
         const screenPoint = imageToScreen(point, viewport);
-        context.fillStyle = index === 0 ? "#ffffff" : "#d1fae5";
         context.strokeStyle = line.active ? "#0f766e" : line.color;
         context.lineWidth = 3;
-        context.beginPath();
-        context.arc(screenPoint.x, screenPoint.y, 8, 0, Math.PI * 2);
-        context.fill();
-        context.stroke();
+        drawCrossMarker(context, screenPoint.x, screenPoint.y, 9, line.active ? "#0f766e" : line.color);
       }
     }
-  }, [lines, surfaceSize.height, surfaceSize.width, viewport]);
+
+    if (toolMode === "mark" && pointerPreview) {
+      drawCrossMarker(context, pointerPreview.screenX, pointerPreview.screenY, 10, "#111827");
+      drawZoomLens(context, image, viewport, pointerPreview, surfaceSize.width);
+    }
+  }, [lines, pointerPreview, surfaceSize.height, surfaceSize.width, toolMode, viewport]);
 
   function screenToImage(clientX: number, clientY: number) {
     const container = containerRef.current;
@@ -300,11 +371,6 @@ export function MeasurementCanvas({
     });
   }
 
-  function resetViewport() {
-    viewportRef.current = null;
-    setViewport(null);
-  }
-
   function handlePointerDown(event: ReactPointerEvent<HTMLCanvasElement>) {
     const container = containerRef.current;
     const activeViewport = viewportRef.current;
@@ -343,14 +409,37 @@ export function MeasurementCanvas({
     const point = screenToImage(event.clientX, event.clientY);
 
     if (point) {
+      setPointerPreview({
+        screenX: localX,
+        screenY: localY,
+        imagePoint: point,
+      });
       onPlacePoint(activeLineId, point);
     }
   }
 
   function handlePointerMove(event: ReactPointerEvent<HTMLCanvasElement>) {
     const activeViewport = viewportRef.current;
+    const container = containerRef.current;
 
-    if (!dragState || !activeViewport) {
+    if (!activeViewport || !container) {
+      return;
+    }
+
+    const bounds = container.getBoundingClientRect();
+    const localX = event.clientX - bounds.left;
+    const localY = event.clientY - bounds.top;
+    const hoveredPoint = screenToImage(event.clientX, event.clientY);
+
+    if (hoveredPoint) {
+      setPointerPreview({
+        screenX: localX,
+        screenY: localY,
+        imagePoint: hoveredPoint,
+      });
+    }
+
+    if (!dragState) {
       return;
     }
 
@@ -378,9 +467,8 @@ export function MeasurementCanvas({
     setDragState(null);
   }
 
-  function handleWheel(event: React.WheelEvent<HTMLCanvasElement>) {
-    event.preventDefault();
-    zoomBy(event.deltaY < 0 ? 1.12 : 0.88);
+  function handlePointerLeave() {
+    setPointerPreview(null);
   }
 
   return (
@@ -425,13 +513,6 @@ export function MeasurementCanvas({
           >
             Zoom -
           </button>
-          <button
-            type="button"
-            onClick={resetViewport}
-            className="min-h-10 rounded-xl border border-[var(--border-soft)] px-4 text-sm font-medium text-[var(--text-strong)]"
-          >
-            Centralizar
-          </button>
         </div>
       </div>
 
@@ -448,7 +529,7 @@ export function MeasurementCanvas({
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerUp}
           onPointerCancel={handlePointerUp}
-          onWheel={handleWheel}
+          onPointerLeave={handlePointerLeave}
         />
       </div>
 
