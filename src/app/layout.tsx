@@ -25,10 +25,47 @@ export const metadata: Metadata = {
   title: "Sizely",
   description:
     "Ferramenta client-side para medir roupas a partir de fotos com calibração manual por referência.",
+  applicationName: "Sizely",
+  metadataBase: new URL("https://sizely.vercel.app"),
+  alternates: {
+    canonical: "/",
+  },
+  keywords: [
+    "medição",
+    "roupas",
+    "medidas",
+    "foto",
+    "next.js",
+    "pwa",
+  ],
   manifest: "/manifest.webmanifest",
   icons: {
     icon: "/icon.svg",
     apple: "/apple-icon.svg",
+  },
+  openGraph: {
+    type: "website",
+    url: "https://sizely.vercel.app/",
+    title: "Sizely",
+    description:
+      "Medição visual de roupas e objetos a partir de fotos, com calibração manual e histórico local.",
+    siteName: "Sizely",
+    locale: "pt_BR",
+    images: [
+      {
+        url: "/opengraph-image",
+        width: 1200,
+        height: 630,
+        alt: "Sizely, ferramenta para medir roupas e objetos a partir de fotos.",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Sizely",
+    description:
+      "Medição visual de roupas e objetos a partir de fotos, com calibração manual e histórico local.",
+    images: ["/twitter-image"],
   },
   appleWebApp: {
     capable: true,
